@@ -47,14 +47,15 @@
                 <version>3.2.5</version>
                 <configuration>
                     <suiteXmlFiles>
-                        <!-- Routes the maven runner execution pipeline through your TestNG suite -->
-                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+
+                        <suiteXmlFile>testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
                     <environmentVariables>
                         <BROWSERSTACK_USERNAME>supriyashinde_oSBVHg</BROWSERSTACK_USERNAME>
                         <BROWSERSTACK_ACCESS_KEY>nBp8KdNqQyPpoR68VJdA</BROWSERSTACK_ACCESS_KEY>
                     </environmentVariables>
                 </configuration>
+
             </plugin>
         </plugins>
     </build>
