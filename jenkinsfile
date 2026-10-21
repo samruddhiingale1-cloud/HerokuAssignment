@@ -1,0 +1,49 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'OS', defaultValue: 'Windows', description: 'Target Operating System')
+        string(name: 'OS_VERSION', defaultValue: '11', description: 'Target OS Version')
+        string(name: 'BROWSER', defaultValue: 'Chrome', description: 'Target Browser')
+        string(name: 'BROWSER_VERSION', defaultValue: 'latest', description: 'Target Browser Version')
+    }
+
+    environment {
+        // FIXED: Updated mapping strings to match your exact uppercase Jenkins credential IDs
+        BROWSERSTACK_USERNAME   = credentials('BROWSERSTACK_USERNAME')
+        BROWSERSTACK_ACCESS_KEY = credentials('BROWSERSTACK_ACCESS_KEY')
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Clones your master branch directly
+                git branch: 'master', url: 'https://github.com'
+            }
+        }
+
+        stage('Validate Credentials') {
+            steps {
+                script {
+                    if (!env.BROWSERSTACK_USERNAME || !env.BROWSERSTACK_ACCESS_KEY) {
+                        error "Missing Credentials: Ensure BROWSERSTACK_USERNAME and BROWSERSTACK_ACCESS_KEY are configured in Jenkins credentials."
+                    }
+                }
+            }
+        }
+
+        stage('Execute Test Suite') {
+            steps {
+                // Executes TestNG passing parameters via Windows batch command
+                bat "mvn clean test -Dos=${params.OS} -DosVersion=${params.OS_VERSION} -DbrowserName=${params.BROWSER} -DbrowserVersion=${params.BROWSER_VERSION}"
+            }
+
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                    archiveArtifacts artifacts: '**/target/surefire-reports/**/*', fingerprint: true
+                }
+            }
+        }
+    }
+}
